@@ -1,0 +1,110 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+// Get Dart environment variables
+def dartEnvironmentVariables = project
+        .property('dart-defines')
+        .split(',')
+        .collectEntries {
+            new String(it.decodeBase64(), 'UTF-8')
+                    .split(',')
+                    .collectEntries {
+                        def pair = it.split('=')
+                        [(pair.first()): pair.last()]
+                    }
+        }
+
+// Copy Firebase configuration file
+task copyFirebaseSource(type: Copy) {
+    def firebaseSettingsFolder = 'dev'
+    if(dartEnvironmentVariables.OPERATION_TYPE == 'product'){
+        firebaseSettingsFolder = 'prd'
+    }
+
+    from "./firebase/$firebaseSettingsFolder/google-services.json"
+    into './'
+}
+
+tasks.whenTaskAdded {
+    it.dependsOn copyFirebaseSource
+}
+
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.google.firebase.crashlytics'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        // Rewrite settings based on OPERATION_TYPE
+        if(dartEnvironmentVariables.OPERATION_TYPE == 'product') {
+            applicationIdSuffix ""
+            manifestPlaceholders += [appNameSuffix:""]
+        } else {
+            applicationIdSuffix ".dev"
+            manifestPlaceholders += [appNameSuffix:"(dev)"]
+        }
+
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.siberia0.flutterAppTemplate"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}

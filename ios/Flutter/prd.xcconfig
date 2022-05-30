@@ -1,0 +1,12 @@
+//
+//  prd.xcconfig
+//  Runner
+//
+//  Created by 梅本俊 on 2022/05/30.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+FIREBASE_TYPE=prd
+APP_ID_SUFFIX=
+APP_NAME_SUFFIX=
