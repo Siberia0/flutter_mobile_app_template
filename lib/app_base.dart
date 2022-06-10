@@ -64,10 +64,21 @@ class AppBaseState extends State<AppBase> {
       initialRoute: _getInitialRoutePath(),
       onGenerateInitialRoutes: (String initialRouteName) =>
           _getInitialRoute(initialRouteName),
-      routes: {
+      onGenerateRoute: (settings) {
         // Add more screens as they are added
-        AppPage.signIn.screenID: (_) => const SignInPage(),
-        AppPage.home.screenID: (_) => const HomePage(),
+        Route<dynamic>? route;
+        if (settings.name == AppPage.signIn.screenID) {
+          route = MaterialPageRoute(
+            builder: (_) => const SignInPage(),
+            settings: settings,
+          );
+        } else if (settings.name == AppPage.home.screenID) {
+          route = MaterialPageRoute(
+            builder: (_) => const HomePage(),
+            settings: settings,
+          );
+        }
+        return route;
       },
     );
   }
