@@ -1,13 +1,13 @@
 # flutter_mobile_app_template
 
 Templates for mobile app projects using flutter.  
-The environment variable `--dart-define=OPERATION_TYPE` at build time switches api endpoint and others.
+The environment variable `--dart-define=OPERATION_TYPE` at build time switches firebase project, api connecting destination, and others.
 
 - Firebase configuration file is empty, so overwrite the files under `android/app/firebase` and under `ios/firebase`.
 
 ## Switching operating environment
 
-In case of Android, switch settings by the script in `android/app/build.gradle`. In case of IOS, execute `ios/Scripts/dart_define.sh` from Xcode script execution settings, and change the xcconfig file according to your environment. file according to your environment.
+In case of Android, switch settings by the script in `android/app/build.gradle`. In case of iOS, execute `ios/Scripts/dart_define.sh` from Xcode script execution settings, and change the xcconfig file according to your environment.
 
 ### OPERATION_TYPE
 
